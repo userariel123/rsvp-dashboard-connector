@@ -15,6 +15,12 @@ class RSVP_Dashboard_Rest_Api {
                 return current_user_can( 'manage_options' );
             },
         ) );
+
+        register_rest_route( 'rsvp-dashboard/v1', '/stats', array(
+            'methods'             => 'GET',
+            'callback'            => array( __CLASS__, 'get_stats' ),
+            'permission_callback' => '__return_true',
+        ) );
     }
 
     public static function debug_form( $request ) {
@@ -31,5 +37,72 @@ class RSVP_Dashboard_Rest_Api {
             'form_id' => $form_id,
             'sample'  => $entries,
         ) );
+    }
+
+    public static function get_stats() {
+        $settings = RSVP_Dashboard_Settings::get_settings();
+        $form_id  = (int) $settings['form_id'];
+
+        $result = array(
+            'confirmed' => 0,
+            'declined'  => 0,
+            'adults'    => 0,
+            'children'  => 0,
+            'guests'    => array(),
+        );
+
+        if ( ! $form_id || ! function_exists( 'fluentFormApi' ) ) {
+            return rest_ensure_response( $result );
+        }
+
+        $formApi = fluentFormApi( 'forms' )->entryInstance( $form_id );
+        $entries = $formApi->entries( array( 'per_page' => 500, 'page' => 1 ), true );
+        $map     = $settings['map'];
+
+        foreach ( $entries as $entry ) {
+            $data = is_array( $entry ) ? $entry : (array) $entry;
+
+            $presence = self::extract_value( $data, $map['presence'] ?? '' );
+            $is_yes   = ( (string) $presence === (string) $settings['presence_yes_value'] );
+
+            $nb_adults   = (int) self::extract_value( $data, $map['adultes'] ?? '' );
+            $nb_children = (int) self::extract_value( $data, $map['enfants'] ?? '' );
+
+            if ( $is_yes ) {
+                $result['confirmed']++;
+                $result['adults']   += $nb_adults;
+                $result['children'] += $nb_children;
+            } else {
+                $result['declined']++;
+            }
+
+            $result['guests'][] = array(
+                'prenom'   => self::extract_value( $data, $map['prenom'] ?? '' ),
+                'nom'      => self::extract_value( $data, $map['nom'] ?? '' ),
+                'presence' => $is_yes ? 'confirmé' : 'décliné',
+                'adultes'  => $nb_adults,
+                'enfants'  => $nb_children,
+            );
+        }
+
+        return rest_ensure_response( $result );
+    }
+
+    private static function extract_value( $data, $path ) {
+        if ( '' === $path ) {
+            return '';
+        }
+        $segments = explode( '.', $path );
+        $value    = $data;
+        foreach ( $segments as $segment ) {
+            if ( is_array( $value ) && isset( $value[ $segment ] ) ) {
+                $value = $value[ $segment ];
+            } elseif ( is_object( $value ) && isset( $value->$segment ) ) {
+                $value = $value->$segment;
+            } else {
+                return '';
+            }
+        }
+        return is_scalar( $value ) ? $value : '';
     }
 }
