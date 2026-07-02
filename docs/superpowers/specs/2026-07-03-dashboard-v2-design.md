@@ -20,6 +20,14 @@ Move from the current bare `card` + `subheader` + plain-text table to a more aut
 
 **New setting:** `dashboard_title` (free text, e.g. "Yoela & Shalev — RSVP"), rendered in the navbar. Empty falls back to the site name.
 
+## 1b. More Tabler components (buttons, dropdown filter)
+
+Confirmed against Tabler's own live markup, not guessed:
+
+- **Trash/restore icons** become real Tabler icon buttons: `<button class="btn btn-icon btn-sm">` with a `<i class="ti ti-trash">` / `<i class="ti ti-arrow-back-up">` icon inside (Tabler Icons webfont, same CDN family as `@tabler/core`), instead of a bare unstyled icon — gets Tabler's built-in hover/focus/disabled states for free.
+- **Filter dropdown** next to the search box (Tous / Confirmés / Déclinés), standard Bootstrap-5-based Tabler pattern: `<div class="dropdown">` wrapping a `<button class="btn dropdown-toggle" data-bs-toggle="dropdown">` and a `<div class="dropdown-menu">` with `<a class="dropdown-item" href="#">` entries — filtering happens client-side in `dashboard.js` against the already-fetched guest list, no new endpoint needed.
+- **Lists** (list-group, media-list style) and **Datagrid** (key/value fiche layout) considered and intentionally left out: lists would replace the sortable-header table with no clear benefit here, and datagrid only makes sense for a future per-guest detail popup, which isn't in scope.
+
 ## 2. Extra columns (per-site flexible data)
 
 Not every client's RSVP form has the same fields beyond prénom/nom/présence/adultes/enfants — some want to show régime alimentaire, table number, phone, etc. Rather than a dynamic add/remove list (which would need JS in the settings page, which doesn't exist today), the settings page gets **5 fixed optional slots**, each a `{label, field key}` pair, matching the same UX pattern as the 5 existing required fields:
