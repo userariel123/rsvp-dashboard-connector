@@ -1,6 +1,6 @@
 # RSVP Dashboard Connector
 
-Petit plugin WordPress qui transforme les réponses RSVP collectées via **Fluent Forms Pro** en un dashboard en direct, joli et réutilisable sur n'importe quel site — sans passer par un export Excel, sans Make/n8n, et sans build step (JS/CSS vanille + [Tabler](https://tabler.io/) + [Chart.js](https://www.chartjs.org/) chargés en CDN).
+Petit plugin WordPress qui transforme les réponses RSVP collectées via **Fluent Forms Pro** en un dashboard en direct, joli et réutilisable sur n'importe quel site — sans passer par un export Excel,JS/CSS vanille + [Tabler](https://tabler.io/) + [Chart.js](https://www.chartjs.org/) chargés en CDN.
 
 ## Ce que ça fait
 
