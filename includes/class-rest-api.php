@@ -19,7 +19,10 @@ class RSVP_Dashboard_Rest_Api {
         register_rest_route( 'rsvp-dashboard/v1', '/stats', array(
             'methods'             => 'GET',
             'callback'            => array( __CLASS__, 'get_stats' ),
-            'permission_callback' => '__return_true',
+            'permission_callback' => function ( $request ) {
+                $token = (string) $request->get_param( 'token' );
+                return '' !== $token && hash_equals( RSVP_Dashboard_Settings::get_or_create_token(), $token );
+            },
         ) );
     }
 
@@ -56,10 +59,22 @@ class RSVP_Dashboard_Rest_Api {
         }
 
         $formApi = fluentFormApi( 'forms' )->entryInstance( $form_id );
-        $entries = $formApi->entries( array( 'per_page' => 500, 'page' => 1 ), true );
+
+        $all_entries = array();
+        $page        = 1;
+        $per_page    = 200;
+        $max_pages   = 25; // safety cap: 25 * 200 = 5000 entries max
+
+        do {
+            $batch       = $formApi->entries( array( 'per_page' => $per_page, 'page' => $page ), true );
+            $batch       = is_array( $batch ) ? $batch : array();
+            $all_entries = array_merge( $all_entries, $batch );
+            $page++;
+        } while ( count( $batch ) === $per_page && $page <= $max_pages );
+
         $map     = $settings['map'];
 
-        foreach ( $entries as $entry ) {
+        foreach ( $all_entries as $entry ) {
             $data = is_array( $entry ) ? $entry : (array) $entry;
 
             $presence = self::extract_value( $data, $map['presence'] ?? '' );

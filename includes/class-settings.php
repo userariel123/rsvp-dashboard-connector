@@ -46,6 +46,15 @@ class RSVP_Dashboard_Settings {
         ) );
     }
 
+    public static function get_or_create_token() {
+        $token = get_option( 'rsvp_dashboard_token' );
+        if ( ! $token ) {
+            $token = wp_generate_password( 32, false );
+            update_option( 'rsvp_dashboard_token', $token );
+        }
+        return $token;
+    }
+
     public static function get_forms_list() {
         global $wpdb;
         $table = $wpdb->prefix . 'fluentform_forms';

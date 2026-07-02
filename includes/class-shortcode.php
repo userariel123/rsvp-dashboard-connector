@@ -15,7 +15,7 @@ class RSVP_Dashboard_Shortcode {
         wp_enqueue_script( 'rsvp-dashboard-js', RSVP_DASHBOARD_URL . 'assets/js/dashboard.js', array( 'chartjs' ), RSVP_DASHBOARD_VERSION, true );
 
         wp_localize_script( 'rsvp-dashboard-js', 'RSVP_DASHBOARD', array(
-            'apiUrl' => esc_url_raw( rest_url( 'rsvp-dashboard/v1/stats' ) ),
+            'apiUrl' => esc_url_raw( add_query_arg( 'token', RSVP_Dashboard_Settings::get_or_create_token(), rest_url( 'rsvp-dashboard/v1/stats' ) ) ),
         ) );
 
         ob_start();
