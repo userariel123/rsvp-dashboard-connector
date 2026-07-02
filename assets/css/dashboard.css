@@ -1,0 +1,16 @@
+:root {
+  --tblr-primary: #4263eb;
+}
+
+.rsvp-dash .card {
+  border-radius: 12px;
+}
+
+.rsvp-dash .h1 {
+  font-weight: 700;
+}
+
+.rsvp-dash .subheader {
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
