@@ -66,9 +66,14 @@ class RSVP_Dashboard_Rest_Api {
         $max_pages   = 25; // safety cap: 25 * 200 = 5000 entries max
 
         do {
-            $result_page = $formApi->entries( array( 'per_page' => $per_page, 'page' => $page ), true );
-            $result_page = is_array( $result_page ) ? $result_page : (array) $result_page;
-            $page_data   = isset( $result_page['data'] ) && is_array( $result_page['data'] ) ? $result_page['data'] : array();
+            $raw_page    = $formApi->entries( array( 'per_page' => $per_page, 'page' => $page ), true );
+            // entries() can return an object (e.g. a paginator), not a plain array —
+            // round-trip through JSON to normalize it the same way the REST response
+            // itself would encode it, rather than guessing at internal object structure.
+            $result_page = json_decode( wp_json_encode( $raw_page ), true );
+            $page_data   = ( is_array( $result_page ) && isset( $result_page['data'] ) && is_array( $result_page['data'] ) )
+                ? $result_page['data']
+                : array();
             $all_entries = array_merge( $all_entries, $page_data );
             $page++;
         } while ( count( $page_data ) === $per_page && $page <= $max_pages );
