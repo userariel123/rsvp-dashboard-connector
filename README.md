@@ -26,7 +26,7 @@ Petit plugin WordPress qui transforme les réponses RSVP collectées via **Fluen
 3. Va dans **Réglages → RSVP Dashboard**.
 4. Choisis le formulaire Fluent Forms à suivre.
 5. Remplis le mapping des 5 champs (prénom, nom, présence, adultes, enfants) avec les clés exactes de ton formulaire.
-   - Pas sûr des clés exactes ? Utilise le lien "Voir un exemple de réponse brute" affiché sous le formulaire de réglages une fois un formulaire sélectionné — il ouvre `/wp-json/rsvp-dashboard/v1/debug/<form_id>` (réservé aux admins) et montre les données brutes d'une vraie réponse.
+   - Pas sûr des clés exactes ? Utilise le lien "Voir un exemple de réponse brute" affiché sous le formulaire de réglages une fois un formulaire sélectionné — il ouvre `/wp-json/rsvp-dashboard/v1/debug/<form_id>` (réservé aux admins) et liste, pour une vraie réponse reçue, uniquement les champs du formulaire sous forme `"response.<clé>": "<valeur vue>"` — à copier tel quel dans les cases "Clé exacte".
 6. Indique la valeur qui signifie "présence confirmée" (ex: `Oui`).
 7. (Optionnel) Renseigne un "Titre du dashboard" (ex: `Yoela & Shalev — RSVP`), affiché dans la barre en haut du dashboard. Vide = nom du site par défaut.
 8. (Optionnel) Remplis jusqu'à 5 "Colonne libre" (étiquette + clé exacte) pour afficher des champs supplémentaires du formulaire dans le tableau (régime, table, téléphone...).

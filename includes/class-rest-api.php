@@ -66,12 +66,27 @@ class RSVP_Dashboard_Rest_Api {
             return new WP_Error( 'ff_missing', 'fluentFormApi() introuvable - Fluent Forms Pro est-il actif ?', array( 'status' => 500 ) );
         }
 
-        $formApi = fluentFormApi( 'forms' )->entryInstance( $form_id );
-        $entries = $formApi->entries( array( 'per_page' => 1, 'page' => 1 ), true );
+        $formApi  = fluentFormApi( 'forms' )->entryInstance( $form_id );
+        $entries  = $formApi->entries( array( 'per_page' => 1, 'page' => 1 ), true );
+        $decoded  = json_decode( wp_json_encode( $entries ), true );
+        $response = ( is_array( $decoded ) && isset( $decoded['data'][0]['response'] ) && is_array( $decoded['data'][0]['response'] ) )
+            ? $decoded['data'][0]['response']
+            : array();
+
+        // Fluent Forms mixes real form fields with its own housekeeping keys
+        // (nonce, referer, embedded post id) in the same "response" array; those
+        // all start with "_" and aren't things an admin would ever map a column to.
+        $champs = array();
+        foreach ( $response as $key => $value ) {
+            if ( 0 === strpos( $key, '_' ) ) {
+                continue;
+            }
+            $champs[ 'response.' . $key ] = is_scalar( $value ) ? $value : '';
+        }
 
         return rest_ensure_response( array(
             'form_id' => $form_id,
-            'sample'  => $entries,
+            'champs'  => $champs,
         ) );
     }
 
