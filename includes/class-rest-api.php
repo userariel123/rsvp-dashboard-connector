@@ -131,7 +131,7 @@ class RSVP_Dashboard_Rest_Api {
                     $result['adults']    += $nb_adults;
                     $result['children']  += $nb_children;
                 } else {
-                    $result['declined'] += $nb_adults + $nb_children;
+                    $result['declined']++;
                 }
             }
 
