@@ -2,6 +2,8 @@
   var REFRESH_MS = 20000;
   var chartInstance = null;
   var allGuests = [];
+  var currentFilter = '';
+  var trashVisible = false;
 
   function fetchStats() {
     fetch(RSVP_DASHBOARD.apiUrl, { cache: 'no-store' })
@@ -54,12 +56,21 @@
     if (!body) return;
 
     var filtered = allGuests.filter(function (g) {
-      return ((g.prenom || '') + ' ' + (g.nom || '')).toLowerCase().indexOf(term) !== -1;
+      var matchesSearch = ((g.prenom || '') + ' ' + (g.nom || '')).toLowerCase().indexOf(term) !== -1;
+      var matchesFilter = !currentFilter || g.presence === currentFilter;
+      return matchesSearch && matchesFilter;
     });
 
     body.innerHTML = filtered.map(function (g) {
+      var extraCells = (g.extra || []).map(function (v) {
+        return '<td>' + escapeHtml(v) + '</td>';
+      }).join('');
+      var badgeClass = g.presence === 'confirmé' ? 'bg-green-lt' : 'bg-red-lt';
       return '<tr><td>' + escapeHtml(g.prenom) + '</td><td>' + escapeHtml(g.nom) + '</td><td>' +
-        escapeHtml(g.presence) + '</td><td>' + escapeHtml(g.adultes) + '</td><td>' + escapeHtml(g.enfants) + '</td></tr>';
+        '<span class="badge ' + badgeClass + '">' + escapeHtml(g.presence) + '</span></td><td>' +
+        escapeHtml(g.adultes) + '</td><td>' + escapeHtml(g.enfants) + '</td>' + extraCells +
+        '<td><button type="button" class="btn btn-icon btn-sm rsvp-dash-trash-btn" data-id="' + g.id + '">' +
+        '<i class="ti ti-trash"></i></button></td></tr>';
     }).join('');
   }
 
@@ -69,10 +80,100 @@
     return div.innerHTML;
   }
 
+  function entryActionUrl(id, action) {
+    return RSVP_DASHBOARD.entriesApiUrl + '/' + id + '/' + action + '?token=' + encodeURIComponent(RSVP_DASHBOARD.token);
+  }
+
+  function trashEntry(id) {
+    fetch(entryActionUrl(id, 'trash'), { method: 'POST' })
+      .then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        fetchStats();
+        if (trashVisible) fetchTrash();
+      })
+      .catch(function (err) {
+        console.error('RSVP Dashboard trash error:', err);
+      });
+  }
+
+  function restoreEntry(id) {
+    fetch(entryActionUrl(id, 'restore'), { method: 'POST' })
+      .then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        fetchStats();
+        fetchTrash();
+      })
+      .catch(function (err) {
+        console.error('RSVP Dashboard restore error:', err);
+      });
+  }
+
+  function fetchTrash() {
+    fetch(RSVP_DASHBOARD.trashApiUrl, { cache: 'no-store' })
+      .then(function (res) { return res.json(); })
+      .then(renderTrash)
+      .catch(function (err) {
+        console.error('RSVP Dashboard trash fetch error:', err);
+      });
+  }
+
+  function renderTrash(data) {
+    var body = document.getElementById('rsvp-dash-trash-body');
+    if (!body) return;
+    var guests = data.guests || [];
+    body.innerHTML = guests.map(function (g) {
+      var badgeClass = g.presence === 'confirmé' ? 'bg-green-lt' : 'bg-red-lt';
+      return '<tr><td>' + escapeHtml(g.prenom) + '</td><td>' + escapeHtml(g.nom) + '</td><td>' +
+        '<span class="badge ' + badgeClass + '">' + escapeHtml(g.presence) + '</span></td>' +
+        '<td><button type="button" class="btn btn-icon btn-sm rsvp-dash-restore-btn" data-id="' + g.id + '">' +
+        '<i class="ti ti-arrow-back-up"></i></button></td></tr>';
+    }).join('');
+  }
+
   document.addEventListener('DOMContentLoaded', function () {
     fetchStats();
     setInterval(fetchStats, REFRESH_MS);
+
     var search = document.getElementById('rsvp-dash-search');
     if (search) search.addEventListener('input', applyFilter);
+
+    var filterMenu = document.getElementById('rsvp-dash-filter-menu');
+    if (filterMenu) {
+      filterMenu.addEventListener('click', function (e) {
+        var item = e.target.closest('[data-filter]');
+        if (!item) return;
+        e.preventDefault();
+        currentFilter = item.getAttribute('data-filter');
+        var label = document.getElementById('rsvp-dash-filter-label');
+        if (label) label.textContent = item.textContent;
+        applyFilter();
+      });
+    }
+
+    var tableBody = document.getElementById('rsvp-dash-table-body');
+    if (tableBody) {
+      tableBody.addEventListener('click', function (e) {
+        var btn = e.target.closest('.rsvp-dash-trash-btn');
+        if (btn) trashEntry(btn.getAttribute('data-id'));
+      });
+    }
+
+    var trashBody = document.getElementById('rsvp-dash-trash-body');
+    if (trashBody) {
+      trashBody.addEventListener('click', function (e) {
+        var btn = e.target.closest('.rsvp-dash-restore-btn');
+        if (btn) restoreEntry(btn.getAttribute('data-id'));
+      });
+    }
+
+    var trashToggle = document.getElementById('rsvp-dash-trash-toggle');
+    var trashPanel = document.getElementById('rsvp-dash-trash-panel');
+    if (trashToggle && trashPanel) {
+      trashToggle.addEventListener('click', function () {
+        trashVisible = !trashVisible;
+        trashPanel.style.display = trashVisible ? '' : 'none';
+        if (trashVisible) fetchTrash();
+      });
+    }
   });
 })();
