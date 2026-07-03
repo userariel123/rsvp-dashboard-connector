@@ -63,6 +63,39 @@
             </div>
             <div class="d-flex" style="gap:8px">
               <div class="dropdown">
+                <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                  <i class="ti ti-columns"></i> Colonnes
+                </button>
+                <div class="dropdown-menu dropdown-menu-end p-2" id="rsvp-dash-columns-menu" style="min-width:200px">
+                  <label class="form-check">
+                    <input class="form-check-input rsvp-dash-col-toggle" type="checkbox" checked data-col="1">
+                    <span class="form-check-label">Prénom</span>
+                  </label>
+                  <label class="form-check">
+                    <input class="form-check-input rsvp-dash-col-toggle" type="checkbox" checked data-col="2">
+                    <span class="form-check-label">Nom</span>
+                  </label>
+                  <label class="form-check">
+                    <input class="form-check-input rsvp-dash-col-toggle" type="checkbox" checked data-col="3">
+                    <span class="form-check-label">Présence</span>
+                  </label>
+                  <label class="form-check">
+                    <input class="form-check-input rsvp-dash-col-toggle" type="checkbox" checked data-col="4">
+                    <span class="form-check-label">Adultes</span>
+                  </label>
+                  <label class="form-check">
+                    <input class="form-check-input rsvp-dash-col-toggle" type="checkbox" checked data-col="5">
+                    <span class="form-check-label">Enfants</span>
+                  </label>
+                  <?php $rsvp_col_index = 6; foreach ( $extra_columns as $col ) : ?>
+                  <label class="form-check">
+                    <input class="form-check-input rsvp-dash-col-toggle" type="checkbox" checked data-col="<?php echo (int) $rsvp_col_index; ?>">
+                    <span class="form-check-label"><?php echo esc_html( $col['label'] ); ?></span>
+                  </label>
+                  <?php $rsvp_col_index++; endforeach; ?>
+                </div>
+              </div>
+              <div class="dropdown">
                 <button class="btn dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown">
                   <span id="rsvp-dash-filter-label">Tous</span>
                 </button>
