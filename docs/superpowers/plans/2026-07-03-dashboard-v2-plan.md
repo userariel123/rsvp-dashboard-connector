@@ -449,7 +449,7 @@ Note on `restore_entry`: it always sets status back to `read` rather than whatev
 
 - [ ] **Step 2: Verify manually on the real site**
 
-1. Re-upload, visit `/wp-json/rsvp-dashboard/v1/stats?token=<your token>` — expected: `confirmed`/`declined` are now headcount sums (compare against known adults/children totals), each guest has an `id` and an `extra` array (empty arrays if no extra columns configured), `columns` lists your configured extra columns.
+1. Re-upload, visit `/wp-json/rsvp-dashboard/v1/stats?token=<your token>` — expected: `confirmed`/`declined` are now headcount sums (compare against known adults/children totals), each guest has an `id` and an `extra` array in settings order (empty arrays if no extra columns configured).
 2. `POST` (e.g. via browser devtools `fetch(..., {method:'POST'})` or a REST client) to `/entries/<a real entry id>/trash?token=...` on a disposable test entry, then re-fetch `/stats` — expected: that guest disappears from the normal response and appears in `/stats?trash=1&token=...`.
 3. `POST` to `/entries/<same id>/restore?token=...`, re-fetch `/stats` — expected: guest is back in the normal response, gone from the trash view.
 
@@ -665,7 +665,7 @@ git commit -m "Redesign dashboard markup: navbar, badges, filter dropdown, trash
 - Modify: `assets/js/dashboard.js`
 
 **Interfaces:**
-- Consumes: `RSVP_DASHBOARD.apiUrl`, `.trashApiUrl`, `.entriesApiUrl` (Task 3); DOM ids from Task 4; `/stats` response shape from Task 2 (`columns`, `guests[].id`, `.extra`).
+- Consumes: `RSVP_DASHBOARD.apiUrl`, `.trashApiUrl`, `.entriesApiUrl`, `.token` (Task 3); DOM ids from Task 4; `/stats` response shape from Task 2 (`guests[].id`, `.extra`).
 
 - [ ] **Step 1: Replace the whole file**
 
