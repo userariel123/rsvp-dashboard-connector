@@ -1,5 +1,5 @@
 :root {
-  --tblr-primary: #4263eb;
+  --tblr-primary: #74b816;
 }
 
 .rsvp-dash .card {
@@ -13,4 +13,27 @@
 .rsvp-dash .subheader {
   text-transform: uppercase;
   letter-spacing: .04em;
+}
+
+.rsvp-badge-confirmed,
+.rsvp-avatar-confirmed {
+  background: #74b816;
+  color: #fff;
+}
+
+.rsvp-badge-declined,
+.rsvp-avatar-declined {
+  background: #d63939;
+  color: #fff;
+}
+
+@media print {
+  .rsvp-dash .navbar,
+  .rsvp-dash .d-print-none {
+    display: none !important;
+  }
+  .rsvp-dash .card {
+    border: none;
+    box-shadow: none;
+  }
 }
