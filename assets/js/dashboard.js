@@ -69,7 +69,7 @@
       return '<tr><td>' + escapeHtml(g.prenom) + '</td><td>' + escapeHtml(g.nom) + '</td><td>' +
         '<span class="badge ' + badgeClass + '">' + escapeHtml(g.presence) + '</span></td><td>' +
         escapeHtml(g.adultes) + '</td><td>' + escapeHtml(g.enfants) + '</td>' + extraCells +
-        '<td><button type="button" class="btn btn-icon btn-sm rsvp-dash-trash-btn" data-id="' + g.id + '">' +
+        '<td><button type="button" class="btn btn-icon btn-sm rsvp-dash-trash-btn" data-id="' + escapeHtml(g.id) + '">' +
         '<i class="ti ti-trash"></i></button></td></tr>';
     }).join('');
   }
@@ -125,7 +125,7 @@
       var badgeClass = g.presence === 'confirmé' ? 'bg-green-lt' : 'bg-red-lt';
       return '<tr><td>' + escapeHtml(g.prenom) + '</td><td>' + escapeHtml(g.nom) + '</td><td>' +
         '<span class="badge ' + badgeClass + '">' + escapeHtml(g.presence) + '</span></td>' +
-        '<td><button type="button" class="btn btn-icon btn-sm rsvp-dash-restore-btn" data-id="' + g.id + '">' +
+        '<td><button type="button" class="btn btn-icon btn-sm rsvp-dash-restore-btn" data-id="' + escapeHtml(g.id) + '">' +
         '<i class="ti ti-arrow-back-up"></i></button></td></tr>';
     }).join('');
   }

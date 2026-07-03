@@ -71,6 +71,7 @@ Aucune modification de code n'est nécessaire d'un site à l'autre.
 
 - Les réponses sont paginées par lots de 200 (jusqu'à 5000 réponses au total) — au-delà, contacter pour augmenter la limite.
 - L'intégration SMS/WhatsApp n'est pas incluse dans cette version ; le point d'extension naturel est `RSVP_Dashboard_Rest_Api::get_stats()` dans `includes/class-rest-api.php`.
+- La mise à la corbeille et la restauration écrivent directement dans la table interne `fluentform_submissions` de Fluent Forms (colonne `status`, valeur `trashed`) ; ce couplage n'est pas garanti par une API publique documentée — si cette fonctionnalité cesse de fonctionner après une mise à jour majeure de Fluent Forms, il faudra revérifier ce schéma.
 
 ## Licence des dépendances externes
 

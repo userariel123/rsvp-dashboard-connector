@@ -13,7 +13,8 @@ class RSVP_Dashboard_Shortcode {
         wp_enqueue_style( 'rsvp-dashboard-css', RSVP_DASHBOARD_URL . 'assets/css/dashboard.css', array( 'tabler-core' ), RSVP_DASHBOARD_VERSION );
 
         wp_enqueue_script( 'chartjs', 'https://cdn.jsdelivr.net/npm/chart.js@4', array(), '4.0.0', true );
-        wp_enqueue_script( 'rsvp-dashboard-js', RSVP_DASHBOARD_URL . 'assets/js/dashboard.js', array( 'chartjs' ), RSVP_DASHBOARD_VERSION, true );
+        wp_enqueue_script( 'tabler-js', 'https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/js/tabler.min.js', array(), '1.0.0', true );
+        wp_enqueue_script( 'rsvp-dashboard-js', RSVP_DASHBOARD_URL . 'assets/js/dashboard.js', array( 'chartjs', 'tabler-js' ), RSVP_DASHBOARD_VERSION, true );
 
         $settings = RSVP_Dashboard_Settings::get_settings();
 

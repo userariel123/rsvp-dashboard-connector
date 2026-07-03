@@ -146,10 +146,18 @@ class RSVP_Dashboard_Rest_Api {
         return self::set_entry_status( $request, 'trashed' );
     }
 
+    // Restored entries are always set to 'read': Fluent Forms' status prior to trashing
+    // isn't recoverable through the API surface this plugin uses, so 'read' is used as an
+    // intentional, safe default rather than a bug.
     public static function restore_entry( $request ) {
         return self::set_entry_status( $request, 'read' );
     }
 
+    // Writes directly to Fluent Forms' internal `{$wpdb->prefix}fluentform_submissions`
+    // table/`status` column and relies on the 'trashed' status value; this couples us to
+    // Fluent Forms' internal schema (confirmed via live testing against a real site, not
+    // official public API docs). Re-verify table/column/status-value here if trash/restore
+    // stops working after a Fluent Forms Pro update.
     private static function set_entry_status( $request, $status ) {
         global $wpdb;
 
