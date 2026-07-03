@@ -134,10 +134,12 @@ class RSVP_Dashboard_Settings {
                     <tr>
                         <th><label>Valeur qui signifie "présence confirmée"</label></th>
                         <td>
-                            <input type="text" style="width:200px"
+                            <input type="text" style="width:200px" list="rsvp-dash-presence-suggestions"
                                    name="<?php echo esc_attr( self::OPTION_KEY ); ?>[presence_yes_value]"
                                    value="<?php echo esc_attr( $settings['presence_yes_value'] ); ?>"
                                    placeholder="ex: Oui" />
+                            <datalist id="rsvp-dash-presence-suggestions"></datalist>
+                            <p class="description">Si des réponses existent déjà, les valeurs réellement vues apparaissent en suggestion pendant que tu tapes.</p>
                         </td>
                     </tr>
                     <?php foreach ( $extra as $i => $col ) : ?>
@@ -168,6 +170,33 @@ class RSVP_Dashboard_Settings {
                 <p><a href="<?php echo esc_url( $debug_url ); ?>" target="_blank">
                     Voir un exemple de réponse brute (aide pour remplir les clés de champs ci-dessus)
                 </a></p>
+            <?php endif; ?>
+            <?php if ( $settings['form_id'] && ! empty( $settings['map']['presence'] ) ) :
+                $field_values_url = add_query_arg(
+                    array(
+                        'key'      => $settings['map']['presence'],
+                        '_wpnonce' => wp_create_nonce( 'wp_rest' ),
+                    ),
+                    rest_url( 'rsvp-dashboard/v1/field-values/' . $settings['form_id'] )
+                );
+                ?>
+                <script>
+                (function () {
+                  var url = <?php echo wp_json_encode( esc_url_raw( $field_values_url ) ); ?>;
+                  fetch(url, { credentials: 'same-origin' })
+                    .then(function (res) { return res.json(); })
+                    .then(function (data) {
+                      var list = document.getElementById('rsvp-dash-presence-suggestions');
+                      if (!list || !data.values) return;
+                      data.values.forEach(function (v) {
+                        var opt = document.createElement('option');
+                        opt.value = v;
+                        list.appendChild(opt);
+                      });
+                    })
+                    .catch(function () {});
+                })();
+                </script>
             <?php endif; ?>
         </div>
         <?php
