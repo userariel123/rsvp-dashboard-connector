@@ -22,17 +22,18 @@ class RSVP_Dashboard_Shortcode {
 
         wp_enqueue_script( 'chartjs', 'https://cdn.jsdelivr.net/npm/chart.js@4', array(), '4.0.0', true );
         wp_enqueue_script( 'tabler-js', 'https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/js/tabler.min.js', array(), '1.0.0', true );
-        wp_enqueue_script( 'rsvp-dashboard-js', RSVP_DASHBOARD_URL . 'assets/js/dashboard.js', array( 'chartjs', 'tabler-js' ), $js_ver, true );
+        wp_enqueue_script( 'sheetjs', 'https://cdn.jsdelivr.net/npm/xlsx@latest/dist/xlsx.full.min.js', array(), '1.0.0', true );
+        wp_enqueue_script( 'rsvp-dashboard-js', RSVP_DASHBOARD_URL . 'assets/js/dashboard.js', array( 'chartjs', 'tabler-js', 'sheetjs' ), $js_ver, true );
 
         $settings = RSVP_Dashboard_Settings::get_settings();
-
-        $token = RSVP_Dashboard_Settings::get_or_create_token();
+        $token    = RSVP_Dashboard_Settings::get_or_create_token();
 
         wp_localize_script( 'rsvp-dashboard-js', 'RSVP_DASHBOARD', array(
-            'apiUrl'        => esc_url_raw( add_query_arg( 'token', $token, rest_url( 'rsvp-dashboard/v1/stats' ) ) ),
-            'trashApiUrl'   => esc_url_raw( add_query_arg( array( 'token' => $token, 'trash' => 1 ), rest_url( 'rsvp-dashboard/v1/stats' ) ) ),
-            'entriesApiUrl' => esc_url_raw( rest_url( 'rsvp-dashboard/v1/entries' ) ),
-            'token'         => $token,
+            'apiUrl'         => esc_url_raw( add_query_arg( 'token', $token, rest_url( 'rsvp-dashboard/v1/stats' ) ) ),
+            'trashApiUrl'    => esc_url_raw( add_query_arg( array( 'token' => $token, 'trash' => 1 ), rest_url( 'rsvp-dashboard/v1/stats' ) ) ),
+            'entriesApiUrl'  => esc_url_raw( rest_url( 'rsvp-dashboard/v1/entries' ) ),
+            'token'          => $token,
+            'dashboardTitle' => $settings['dashboard_title'] ?: get_bloginfo( 'name' ),
         ) );
 
         $dashboard_title = $settings['dashboard_title'];
