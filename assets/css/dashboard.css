@@ -27,6 +27,10 @@
   color: #fff;
 }
 
+.rsvp-dash .table-vcenter tbody tr td {
+  border-bottom: 0;
+}
+
 @media print {
   .rsvp-dash .navbar,
   .rsvp-dash .d-print-none {
