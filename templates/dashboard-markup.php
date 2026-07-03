@@ -72,10 +72,10 @@
               </div>
             </div>
             <div class="table-responsive">
-              <table class="table table-vcenter card-table">
+              <table class="table table-vcenter card-table table-hover">
                 <thead>
                   <tr>
-                    <th>Prénom</th><th>Nom</th><th>Présence</th><th>Adultes</th><th>Enfants</th>
+                    <th>Prénom</th><th>Nom</th><th>Présence</th><th class="text-end">Adultes</th><th class="text-end">Enfants</th>
                     <?php foreach ( $extra_columns as $col ) : ?>
                       <th><?php echo esc_html( $col['label'] ); ?></th>
                     <?php endforeach; ?>

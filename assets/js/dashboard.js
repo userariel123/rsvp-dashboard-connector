@@ -65,13 +65,23 @@
       var extraCells = (g.extra || []).map(function (v) {
         return '<td>' + escapeHtml(v) + '</td>';
       }).join('');
-      var badgeClass = g.presence === 'confirmé' ? 'bg-green-lt' : 'bg-red-lt';
-      return '<tr><td>' + escapeHtml(g.prenom) + '</td><td>' + escapeHtml(g.nom) + '</td><td>' +
-        '<span class="badge ' + badgeClass + '">' + escapeHtml(g.presence) + '</span></td><td>' +
-        escapeHtml(g.adultes) + '</td><td>' + escapeHtml(g.enfants) + '</td>' + extraCells +
+      var isConfirmed = g.presence === 'confirmé';
+      var badgeClass = isConfirmed ? 'bg-green-lt' : 'bg-red-lt';
+      var avatarClass = isConfirmed ? 'bg-green-lt' : 'bg-red-lt';
+      var initials = initialsOf(g.prenom, g.nom);
+      return '<tr><td><div class="d-flex align-items-center"><span class="avatar avatar-sm ' + avatarClass + ' me-2">' +
+        escapeHtml(initials) + '</span>' + escapeHtml(g.prenom) + '</div></td><td>' + escapeHtml(g.nom) + '</td><td>' +
+        '<span class="badge ' + badgeClass + '">' + escapeHtml(g.presence) + '</span></td><td class="text-end">' +
+        escapeHtml(g.adultes) + '</td><td class="text-end">' + escapeHtml(g.enfants) + '</td>' + extraCells +
         '<td><button type="button" class="btn btn-icon btn-sm rsvp-dash-trash-btn" data-id="' + escapeHtml(g.id) + '">' +
         '<i class="ti ti-trash"></i></button></td></tr>';
     }).join('');
+  }
+
+  function initialsOf(prenom, nom) {
+    var a = (prenom || '').trim().charAt(0);
+    var b = (nom || '').trim().charAt(0);
+    return (a + b).toUpperCase();
   }
 
   function escapeHtml(str) {
