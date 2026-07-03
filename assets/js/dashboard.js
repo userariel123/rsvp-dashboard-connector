@@ -5,8 +5,15 @@
   var currentFilter = '';
   var trashVisible = false;
 
+  // Appends a unique query param so no cache layer (browser, LiteSpeed, or a host's own
+  // CDN in front of it) can ever serve a stale response for a URL it has seen before —
+  // response Cache-Control headers alone were confirmed insufficient on this host.
+  function bust( url ) {
+    return url + ( url.indexOf( '?' ) === -1 ? '?' : '&' ) + '_=' + Date.now();
+  }
+
   function fetchStats() {
-    fetch(RSVP_DASHBOARD.apiUrl, { cache: 'no-store' })
+    fetch(bust(RSVP_DASHBOARD.apiUrl), { cache: 'no-store' })
       .then(function (res) {
         if (!res.ok) throw new Error('HTTP ' + res.status);
         return res.json();
@@ -119,7 +126,7 @@
   }
 
   function fetchTrash() {
-    fetch(RSVP_DASHBOARD.trashApiUrl, { cache: 'no-store' })
+    fetch(bust(RSVP_DASHBOARD.trashApiUrl), { cache: 'no-store' })
       .then(function (res) { return res.json(); })
       .then(renderTrash)
       .catch(function (err) {
