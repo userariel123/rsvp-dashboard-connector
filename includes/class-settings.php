@@ -158,8 +158,14 @@ class RSVP_Dashboard_Settings {
                 </table>
                 <?php submit_button(); ?>
             </form>
-            <?php if ( $settings['form_id'] ) : ?>
-                <p><a href="<?php echo esc_url( rest_url( 'rsvp-dashboard/v1/debug/' . $settings['form_id'] ) ); ?>" target="_blank">
+            <?php if ( $settings['form_id'] ) :
+                // Some hosts/security plugins now require the REST cookie-auth nonce even
+                // on a plain clicked link (not just fetch() calls with an X-WP-Nonce header) —
+                // WordPress's REST API accepts the nonce as a _wpnonce query arg for exactly
+                // this case, confirmed live after a plain link started 401'ing on this site.
+                $debug_url = add_query_arg( '_wpnonce', wp_create_nonce( 'wp_rest' ), rest_url( 'rsvp-dashboard/v1/debug/' . $settings['form_id'] ) );
+                ?>
+                <p><a href="<?php echo esc_url( $debug_url ); ?>" target="_blank">
                     Voir un exemple de réponse brute (aide pour remplir les clés de champs ci-dessus)
                 </a></p>
             <?php endif; ?>
