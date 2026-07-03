@@ -16,6 +16,14 @@ class RSVP_Dashboard_Rest_Api {
             },
         ) );
 
+        register_rest_route( 'rsvp-dashboard/v1', '/field-values/(?P<form_id>\d+)', array(
+            'methods'             => 'GET',
+            'callback'            => array( __CLASS__, 'field_values' ),
+            'permission_callback' => function () {
+                return current_user_can( 'manage_options' );
+            },
+        ) );
+
         register_rest_route( 'rsvp-dashboard/v1', '/stats', array(
             'methods'             => 'GET',
             'callback'            => array( __CLASS__, 'get_stats' ),
@@ -65,6 +73,29 @@ class RSVP_Dashboard_Rest_Api {
             'form_id' => $form_id,
             'sample'  => $entries,
         ) );
+    }
+
+    public static function field_values( $request ) {
+        self::send_no_cache_headers();
+        $form_id = (int) $request['form_id'];
+        $key     = (string) $request->get_param( 'key' );
+
+        if ( ! function_exists( 'fluentFormApi' ) || '' === $key || ! $form_id ) {
+            return rest_ensure_response( array( 'values' => array() ) );
+        }
+
+        $entries = self::fetch_all_entries( $form_id );
+        $values  = array();
+
+        foreach ( $entries as $entry ) {
+            $data  = is_array( $entry ) ? $entry : (array) $entry;
+            $value = self::extract_value( $data, $key );
+            if ( '' !== $value && ! in_array( (string) $value, $values, true ) ) {
+                $values[] = (string) $value;
+            }
+        }
+
+        return rest_ensure_response( array( 'values' => $values ) );
     }
 
     private static function fetch_all_entries( $form_id ) {
