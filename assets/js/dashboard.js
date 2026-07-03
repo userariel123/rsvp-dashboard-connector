@@ -10,6 +10,9 @@
   var trashVisible = false;
   var lastUpdateAt = null;
 
+  // Appends a unique query param so no cache layer (browser, LiteSpeed, or a host's own
+  // CDN in front of it) can ever serve a stale response for a URL it has seen before —
+  // response Cache-Control headers alone were confirmed insufficient on this host.
   function bust( url ) {
     return url + ( url.indexOf( '?' ) === -1 ? '?' : '&' ) + '_=' + Date.now();
   }
@@ -36,7 +39,6 @@
     renderChart(data.confirmed, data.declined);
     allGuests = data.guests || [];
     setText('rsvp-dash-total-count', allGuests.length + ' réponses au total');
-    currentPage = 1;
     renderTable();
   }
 
@@ -212,6 +214,14 @@
     }).join('');
   }
 
+  // Neutralizes spreadsheet formula injection (CWE-1236): guest-submitted strings that
+  // start with =, +, -, @, tab, or CR would otherwise be evaluated as live formulas by
+  // Excel/LibreOffice when the admin opens the exported file.
+  function safeCell(v) {
+    var s = (v === null || v === undefined) ? '' : String(v);
+    return /^[=+\-@\t\r]/.test(s) ? "'" + s : s;
+  }
+
   function exportExcel() {
     if (typeof XLSX === 'undefined') return;
     var headers = [];
@@ -220,7 +230,9 @@
       headers.push(th.textContent.trim());
     });
     var rows = allGuests.map(function (g) {
-      return [g.prenom, g.nom, g.presence, g.adultes, g.enfants].concat(g.extra || []);
+      return [safeCell(g.prenom), safeCell(g.nom), g.presence, g.adultes, g.enfants].concat(
+        (g.extra || []).map(safeCell)
+      );
     });
     var summary = [
       ['Total invités confirmés', lastStats.confirmed],
