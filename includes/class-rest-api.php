@@ -40,7 +40,18 @@ class RSVP_Dashboard_Rest_Api {
         return '' !== $token && hash_equals( RSVP_Dashboard_Settings::get_or_create_token(), $token );
     }
 
+    // These endpoints return live, fast-changing data (or trigger a write), so page/edge
+    // caches (LiteSpeed Cache confirmed caching /stats for 7 days on a real site, silently
+    // freezing the "auto-updates every 20s" feature) must never cache them. nocache_headers()
+    // covers the general case; the LiteSpeed-specific header is a targeted fix for the exact
+    // cache plugin that was observed serving a week-old response.
+    private static function send_no_cache_headers() {
+        nocache_headers();
+        header( 'X-LiteSpeed-Cache-Control: no-cache' );
+    }
+
     public static function debug_form( $request ) {
+        self::send_no_cache_headers();
         $form_id = (int) $request['form_id'];
 
         if ( ! function_exists( 'fluentFormApi' ) ) {
@@ -80,6 +91,7 @@ class RSVP_Dashboard_Rest_Api {
     }
 
     public static function get_stats( $request ) {
+        self::send_no_cache_headers();
         $settings = RSVP_Dashboard_Settings::get_settings();
         $form_id  = (int) $settings['form_id'];
         $want_trash = (bool) $request->get_param( 'trash' );
@@ -159,6 +171,7 @@ class RSVP_Dashboard_Rest_Api {
     // official public API docs). Re-verify table/column/status-value here if trash/restore
     // stops working after a Fluent Forms Pro update.
     private static function set_entry_status( $request, $status ) {
+        self::send_no_cache_headers();
         global $wpdb;
 
         $settings = RSVP_Dashboard_Settings::get_settings();
