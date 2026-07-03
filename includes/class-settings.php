@@ -4,6 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 class RSVP_Dashboard_Settings {
 
     const OPTION_KEY = 'rsvp_dashboard_settings';
+    const EXTRA_COLUMN_SLOTS = 5;
 
     public static function init() {
         add_action( 'admin_menu', array( __CLASS__, 'add_settings_page' ) );
@@ -35,6 +36,19 @@ class RSVP_Dashboard_Settings {
             $clean['map'][ $role ] = isset( $input['map'][ $role ] ) ? sanitize_text_field( $input['map'][ $role ] ) : '';
         }
         $clean['presence_yes_value'] = isset( $input['presence_yes_value'] ) ? sanitize_text_field( $input['presence_yes_value'] ) : '';
+        $clean['dashboard_title']    = isset( $input['dashboard_title'] ) ? sanitize_text_field( $input['dashboard_title'] ) : '';
+
+        $clean['extra_columns'] = array();
+        if ( isset( $input['extra_columns'] ) && is_array( $input['extra_columns'] ) ) {
+            for ( $i = 0; $i < self::EXTRA_COLUMN_SLOTS; $i++ ) {
+                $label = isset( $input['extra_columns'][ $i ]['label'] ) ? sanitize_text_field( $input['extra_columns'][ $i ]['label'] ) : '';
+                $key   = isset( $input['extra_columns'][ $i ]['key'] ) ? sanitize_text_field( $input['extra_columns'][ $i ]['key'] ) : '';
+                if ( '' !== $label && '' !== $key ) {
+                    $clean['extra_columns'][] = array( 'label' => $label, 'key' => $key );
+                }
+            }
+        }
+
         return $clean;
     }
 
@@ -43,6 +57,8 @@ class RSVP_Dashboard_Settings {
             'form_id'            => 0,
             'map'                => array(),
             'presence_yes_value' => '',
+            'dashboard_title'    => '',
+            'extra_columns'      => array(),
         ) );
     }
 
@@ -67,6 +83,10 @@ class RSVP_Dashboard_Settings {
     public static function render_settings_page() {
         $settings = self::get_settings();
         $forms    = self::get_forms_list();
+        $extra    = $settings['extra_columns'];
+        while ( count( $extra ) < self::EXTRA_COLUMN_SLOTS ) {
+            $extra[] = array( 'label' => '', 'key' => '' );
+        }
         ?>
         <div class="wrap">
             <h1>RSVP Dashboard - Réglages</h1>
@@ -84,6 +104,15 @@ class RSVP_Dashboard_Settings {
                                     </option>
                                 <?php endforeach; ?>
                             </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><label>Titre du dashboard</label></th>
+                        <td>
+                            <input type="text" style="width:350px"
+                                   name="<?php echo esc_attr( self::OPTION_KEY ); ?>[dashboard_title]"
+                                   value="<?php echo esc_attr( $settings['dashboard_title'] ); ?>"
+                                   placeholder="ex: Yoela &amp; Shalev — RSVP" />
                         </td>
                     </tr>
                     <?php foreach ( array(
@@ -111,6 +140,21 @@ class RSVP_Dashboard_Settings {
                                    placeholder="ex: Oui" />
                         </td>
                     </tr>
+                    <?php foreach ( $extra as $i => $col ) : ?>
+                        <tr>
+                            <th><label>Colonne libre <?php echo (int) ( $i + 1 ); ?></label></th>
+                            <td>
+                                Étiquette
+                                <input type="text" style="width:180px"
+                                       name="<?php echo esc_attr( self::OPTION_KEY ); ?>[extra_columns][<?php echo (int) $i; ?>][label]"
+                                       value="<?php echo esc_attr( $col['label'] ); ?>" />
+                                Clé exacte
+                                <input type="text" style="width:220px"
+                                       name="<?php echo esc_attr( self::OPTION_KEY ); ?>[extra_columns][<?php echo (int) $i; ?>][key]"
+                                       value="<?php echo esc_attr( $col['key'] ); ?>" />
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
                 </table>
                 <?php submit_button(); ?>
             </form>
